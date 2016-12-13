@@ -62,6 +62,11 @@ class SendFileController < ActionController::Base
     send_data "foo", options
   end
 
+  def test_send_file_headers_with_string_content_type
+    options = { type: "text/csv; charset=UTF-8; header=present" }
+    send_data "foo", options
+  end
+
   def test_send_file_headers_guess_type_from_extension
     options = { filename: params[:filename] }
     send_data "foo", options
@@ -167,6 +172,12 @@ class SendFileTest < ActionController::TestCase
   def test_send_file_headers_with_nil_content_type
     error = assert_raise(ArgumentError) { get __method__ }
     assert_equal ":type option required", error.message
+  end
+
+  def test_send_file_headers_with_string_content_type
+    get :test_send_file_headers_with_string_content_type
+
+    assert_equal 'text/csv; charset=UTF-8; header=present', response.headers["Content-Type"]
   end
 
   def test_send_file_headers_guess_type_from_extension
