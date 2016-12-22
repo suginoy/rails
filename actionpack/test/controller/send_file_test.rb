@@ -57,13 +57,23 @@ class SendFileController < ActionController::Base
     send_data "foo", options
   end
 
-  def test_send_file_headers_with_nil_content_type
+  def test_send_file_headers_with_nil_type
     options = { type: nil }
     send_data "foo", options
   end
 
-  def test_send_file_headers_with_string_content_type
+  def test_send_file_headers_with_string_type
     options = { type: "text/csv; charset=UTF-8; header=present" }
+    send_data "foo", options
+  end
+
+  def test_send_file_headers_with_string_content_type
+    options = { content_type: "text/csv; charset=UTF-8; header=present" }
+    send_data "foo", options
+  end
+
+  def test_send_file_headers_with_string_type_and_content_type
+    options = { type: "text/csv" , content_type: "text/csv; charset=UTF-8; header=present" }
     send_data "foo", options
   end
 
@@ -169,13 +179,25 @@ class SendFileTest < ActionController::TestCase
     assert_equal "Unknown MIME type this_type_is_not_registered", error.message
   end
 
-  def test_send_file_headers_with_nil_content_type
+  def test_send_file_headers_with_nil_type
     error = assert_raise(ArgumentError) { get __method__ }
     assert_equal ":type option required", error.message
   end
 
+  def test_send_file_headers_with_string_type
+    get :test_send_file_headers_with_string_type
+
+    assert_equal 'text/csv; charset=UTF-8; header=present', response.headers["Content-Type"]
+  end
+
   def test_send_file_headers_with_string_content_type
     get :test_send_file_headers_with_string_content_type
+
+    assert_equal 'text/csv; charset=UTF-8; header=present', response.headers["Content-Type"]
+  end
+
+  def test_send_file_headers_with_string_type_and_content_type
+    get :test_send_file_headers_with_string_type_and_content_type
 
     assert_equal 'text/csv; charset=UTF-8; header=present', response.headers["Content-Type"]
   end
